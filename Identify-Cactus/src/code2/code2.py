@@ -43,7 +43,7 @@ def predict(learn: Learner, name: str):
         {'id': id_, 'loss': np.array(learn.recorder.losses)})
     loss_df.to_csv('loss_{}.csv'.format(name), index=False)
     print('Finish creating loss_{}.csv'.format(name))
-    # 计算训练集上的一些指标
+    # Calculate some metrics on the training set
     preds, targets = learn.get_preds(ds_type=DatasetType.Train)
     preds_label = np.argmax(preds.numpy(), axis=1)
     id_ = range(len(preds))
@@ -66,7 +66,7 @@ def predict(learn: Learner, name: str):
          'TP': TP, 'TN': TN, 'FP': FP, 'FN': FN})
     train_index_df.to_csv('./train_index_{}.csv'.format(name))
     print('Finish creating train_index_{}.csv'.format(name))
-    # 销毁learn和保存模型
+    # Destroy learn and save the model
     learn.export('./model_{}.pth'.format(name), destroy=True)
 
 
@@ -76,7 +76,7 @@ model_normal_dict = {
     'resnet': resnet101,
     'se_resnet': se_resnet101,
 }
-# 模型层数对比
+# Comparison of model layers
 model_layer_dict = {
     'densenet': {
         '121': densenet121,
@@ -99,24 +99,24 @@ model_layer_dict = {
         '152': se_resnet152,
     }
 }
-# 模型学习率对比
+# Comparison of model learning rate
 lr_dict = {
     '1e-1': 1e-1,
     # '1e-2': 1e-2,
     '1e-3': 1e-3,
 }
-# 优化器对比
+# Comparison of model optimizer
 optim_dict = {
     'adam': torch.optim.Adam,
     # 'sgd': torch.optim.SGD,
     'rprop': torch.optim.Rprop,
 }
-# 1 cycle 策略
+# 1 cycle or not
 one_cycle_dict = {
     # 'use-one-cycle': True,
     'not-use-one-cycle': False,
 }
-# 不同的数据增强方法对比
+# Data pre-processing or not
 transform_dict = {
     # 'dofilp-flipvert': [True, True],
     'dofilp': [True, True],
@@ -126,7 +126,7 @@ transform_dict = {
 
 # In[3]
 for name, model in model_normal_dict.items():
-    # 默认设置
+    # default setting
     trfm = get_transforms(do_flip=True, flip_vert=True)
     train_img = (
         ImageList.from_df(train, path=path/'train', folder='train')
@@ -144,7 +144,7 @@ for name, model in model_normal_dict.items():
     mld = model_layer_dict[name]
     predict(learn, '{}_{}_{}_{}_{}_{}'.format(name, list(mld.keys(
     ))[1], '1e-2', 'sgd', 'use-one-cycle', 'dofilp-flipvert'))
-    # 层数
+    # the number of layer
     for layer_name, true_model in mld.items():
         if true_model is None:
             continue
@@ -153,13 +153,13 @@ for name, model in model_normal_dict.items():
         lr = 1e-2
         learn.fit_one_cycle(2, slice(lr))
         predict(learn, '{}_{}'.format(name, layer_name))
-    # 学习率
+    # learning rate
     for lr_name, lr in lr_dict.items():
         learn = cnn_learner(train_img, model, metrics=[
             error_rate, accuracy], opt_func=torch.optim.SGD)
         learn.fit_one_cycle(2, slice(lr))
         predict(learn, '{}_{}'.format(name, lr_name))
-    # 优化器
+    # optimizer
     for optim_name, optim in optim_dict.items():
         learn = cnn_learner(train_img, model, metrics=[
             error_rate, accuracy], opt_func=optim)
@@ -176,7 +176,7 @@ for name, model in model_normal_dict.items():
         else:
             learn.fit(2, slice(lr))
         predict(learn, '{}_{}'.format(name, cycle_name))
-    # 数据增强策略
+    # data pre-processing
     for transform_name, transform_strategy in transform_dict.items():
         trfm = get_transforms(
             do_flip=transform_strategy[0],
