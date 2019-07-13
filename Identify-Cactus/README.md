@@ -39,6 +39,7 @@
 - **Time Line**: The competition will conclude July 8,  2019 at 11:59 PM UTC. 
 - **Dataset**: 32 × 32 thumbnail columnar cactus images. 
 - **Target**: Creating a classifier to predict the probability of containing cactus. 
+- **Methods**: VGGNet, ResNet, SEResNet, DenseNet, ResNeXt.
 - **Submissions**
   - VGGNet: https://www.kaggle.com/albertsheldon/test-m2?scriptVersionId=16988178
   - ResNet: https://www.kaggle.com/albertsheldon/test-resnet
